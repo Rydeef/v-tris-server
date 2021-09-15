@@ -6,6 +6,8 @@ const router = Router();
 
 router.post("/register", validators.registerValidator, controller.register);
 
-router.get("/register/confirm/:token", controller.registerConfirmation);
+router.post("/register/confirm/:token", controller.registerConfirmation);
+
+router.post("/login", controller.login);
 
 module.exports = router;

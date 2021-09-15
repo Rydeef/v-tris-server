@@ -6,6 +6,7 @@ require("dotenv").config();
 const authRouter = require("./routes/auth");
 
 const app = express();
+app.use(require("cors")());
 
 async function startServer() {
   try {

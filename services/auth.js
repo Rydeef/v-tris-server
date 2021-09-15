@@ -17,7 +17,7 @@ module.exports.sendConfirmationEmail = async (userObj) => {
     const newMail = () => {
       const repOne = mail.replace(
         "pageUrl",
-        `http://localhost:5000/auth/register/confirm`
+        `http://localhost:3000/register/confirm`
       );
       return repOne.replace("token", `${hash}`);
     };

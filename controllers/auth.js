@@ -17,19 +17,19 @@ module.exports.register = async (req, res) => {
       });
     }
 
-    const { userName, email, password, confirmPassword } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
     const candidateEmail = await User.findOne({ email: email });
     const candidateUsername = await User.findOne({ email: email });
 
     if (candidateEmail) {
       return res
-        .status(400)
+        .status(209)
         .json({ message: "User with this email already exists" });
     }
     if (candidateUsername) {
       return res
-        .status(400)
+        .status(209)
         .json({ message: "User with this name already exists" });
     }
 
@@ -39,7 +39,7 @@ module.exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userObj = {
-      username: userName,
+      username: username,
       email,
       password: hashedPassword,
       confirmed: false,
@@ -64,26 +64,49 @@ module.exports.registerConfirmation = async (req, res) => {
 
     const candidate = await User.findOne({ email: user.email });
 
-    const infoPage = fs.readFileSync(
-      path.join(__dirname, "../templates/info.hbs"),
-      "utf8"
-    );
-
     if (!candidate) {
-      return res.send(infoPage.replace("messageInfo", "User does not exist"));
+      return res.status(400).json({ message: "User does not exist" });
     }
     if (candidate.confirmed) {
-      return res.send(
-        infoPage.replace("messageInfo", "User already confirmed")
-      );
+      return res.status(409).json({ message: "User already confirmed" });
     }
 
     await User.updateOne({ email: user.email }, { confirmed: true });
 
-    return res.send(
-      infoPage.replace("messageInfo", "User confirmed successfully")
-    );
+    return res.status(200).json({ message: "User confirmed successfully" });
   } catch (e) {
-    res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+module.exports.login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username: username });
+
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
+    if (!user.confirmed) {
+      return res.status(409).json({ message: "User is not confirmed" });
+    }
+
+    const passIsMatch = await bcrypt.compare(password, user.password);
+
+    if (!passIsMatch) {
+      return res.status(400).json({ message: "Invalid password, try again" });
+    }
+
+    const token = jwt.sign(
+      { username: user.username, email: user.email },
+      process.env.JWT_SECRET_CODE,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.status(200).json({ token });
+  } catch (e) {
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
