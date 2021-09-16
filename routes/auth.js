@@ -10,4 +10,7 @@ router.post("/register/confirm/:token", controller.registerConfirmation);
 
 router.post("/login", controller.login);
 
+router.post("/reset", controller.reset);
+router.post("/reset/password", controller.resetPassword);
+
 module.exports = router;

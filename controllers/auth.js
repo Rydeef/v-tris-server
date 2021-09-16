@@ -110,3 +110,47 @@ module.exports.login = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+module.exports.reset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
+
+    service.sendPasswordResetEmail({email: user.email});
+    res.status(201).json({
+      message: "A confirmation email has been sent to your email",
+    });
+  } catch (e) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+module.exports.resetPassword = async (req, res) => {
+  try {
+    const { password, confirmPassword, token } = req.body;
+
+    const user = jwt.decode(token);
+
+    const candidate = await User.findOne({ email: user.email });
+
+    if (!candidate) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
+
+    if (String(password) !== String(confirmPassword)) {
+      return res.status(400).json({ message: "Password mismatch" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.updateOne({ email: user.email }, { password: hashedPassword });
+    return res.status(200).json({ message: "Password changed successfully" });
+  } catch (e) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
