@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const authRouter = require("./routes/auth");
+const workspacesRouter = require("./routes/workspaces");
+const ticketsRouter = require("./routes/tickets");
+const userRouter = require("./routes/user");
 
 const app = express();
 app.use(require("cors")());
@@ -24,5 +27,8 @@ async function startServer() {
 app.use(express.json({ extended: true }));
 
 app.use("/auth", authRouter);
+app.use("/workspaces", workspacesRouter);
+app.use("/tickets", ticketsRouter);
+app.use("/user", userRouter);
 
 startServer();

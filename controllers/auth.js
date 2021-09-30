@@ -3,8 +3,7 @@ const { validationResult } = require("express-validator");
 const User = require("../models/User");
 const service = require("../services/auth");
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
-const path = require("path");
+
 
 require("dotenv").config();
 
@@ -97,13 +96,7 @@ module.exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid password, try again" });
     }
 
-    const token = jwt.sign(
-      { username: user.username, email: user.email },
-      process.env.JWT_SECRET_CODE,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const token = service.generateAccessToken({ username });
 
     res.status(200).json({ token });
   } catch (e) {
@@ -121,7 +114,7 @@ module.exports.reset = async (req, res) => {
       return res.status(400).json({ message: "User does not exist" });
     }
 
-    service.sendPasswordResetEmail({email: user.email});
+    service.sendPasswordResetEmail({ email: user.email });
     res.status(201).json({
       message: "A confirmation email has been sent to your email",
     });
