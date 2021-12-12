@@ -20,9 +20,6 @@ const schema = new Schema({
     default: false,
     required: true,
   },
-  workspaces: {
-    type: Array,
-  },
 });
 
 module.exports = model("users", schema);

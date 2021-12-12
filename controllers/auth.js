@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
-const { validationResult } = require("express-validator");
+const {
+  validationResult
+} = require("express-validator");
 const User = require("../models/User");
 const service = require("../services/auth");
 const jwt = require("jsonwebtoken");
@@ -16,24 +18,39 @@ module.exports.register = async (req, res) => {
       });
     }
 
-    const { username, email, password, confirmPassword } = req.body;
+    const {
+      username,
+      email,
+      password,
+      confirmPassword
+    } = req.body;
 
-    const candidateEmail = await User.findOne({ email: email });
-    const candidateUsername = await User.findOne({ email: email });
+    const candidateEmail = await User.findOne({
+      email: email
+    });
+    const candidateUsername = await User.findOne({
+      email: email
+    });
 
     if (candidateEmail) {
       return res
         .status(209)
-        .json({ message: "User with this email already exists" });
+        .json({
+          message: "User with this email already exists"
+        });
     }
     if (candidateUsername) {
       return res
         .status(209)
-        .json({ message: "User with this name already exists" });
+        .json({
+          message: "User with this name already exists"
+        });
     }
 
     if (String(password) !== String(confirmPassword)) {
-      return res.status(400).json({ message: "Password mismatch" });
+      return res.status(400).json({
+        message: "Password mismatch"
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -53,97 +70,160 @@ module.exports.register = async (req, res) => {
       message: "A confirmation email has been sent to your email",
     });
   } catch (e) {
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({
+      message: "Something went wrong"
+    });
   }
 };
 module.exports.registerConfirmation = async (req, res) => {
   try {
-    const { token } = req.params;
+    const {
+      token
+    } = req.params;
     const user = jwt.decode(token);
 
-    const candidate = await User.findOne({ email: user.email });
+    const candidate = await User.findOne({
+      email: user.email
+    });
 
     if (!candidate) {
-      return res.status(400).json({ message: "User does not exist" });
+      return res.status(400).json({
+        message: "User does not exist"
+      });
     }
     if (candidate.confirmed) {
-      return res.status(409).json({ message: "User already confirmed" });
+      return res.status(409).json({
+        message: "User already confirmed"
+      });
     }
 
-    await User.updateOne({ email: user.email }, { confirmed: true });
+    await User.updateOne({
+      email: user.email
+    }, {
+      confirmed: true
+    });
 
-    return res.status(200).json({ message: "User confirmed successfully" });
+    return res.status(200).json({
+      message: "User confirmed successfully"
+    });
   } catch (e) {
-    return res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({
+      message: "Something went wrong"
+    });
   }
 };
 
 module.exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username: username });
+    const {
+      username,
+      password
+    } = req.body;
+    const user = await User.findOne({
+      username: username
+    });
 
     if (!user) {
-      return res.status(400).json({ message: "User does not exist" });
+      return res.status(400).json({
+        message: "User does not exist"
+      });
     }
     if (!user.confirmed) {
-      return res.status(409).json({ message: "User is not confirmed" });
+      return res.status(409).json({
+        message: "User is not confirmed"
+      });
     }
 
     const passIsMatch = await bcrypt.compare(password, user.password);
 
     if (!passIsMatch) {
-      return res.status(400).json({ message: "Invalid password, try again" });
+      return res.status(400).json({
+        message: "Invalid password, try again"
+      }); 
     }
 
-    const token = service.generateAccessToken({ username });
+    const token = service.generateAccessToken({
+      username
+    });
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      token: "Bearer " + token
+    });
   } catch (e) {
-    return res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({
+      message: "Something went wrong"
+    });
   }
 };
 
 module.exports.reset = async (req, res) => {
   try {
-    const { email } = req.body;
+    const {
+      email
+    } = req.body;
 
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({
+      email: email
+    });
 
     if (!user) {
-      return res.status(400).json({ message: "User does not exist" });
+      return res.status(400).json({
+        message: "User does not exist"
+      });
     }
 
-    service.sendPasswordResetEmail({ email: user.email });
+    service.sendPasswordResetEmail({
+      email: user.email
+    });
     res.status(201).json({
       message: "A confirmation email has been sent to your email",
     });
   } catch (e) {
-    return res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({
+      message: "Something went wrong"
+    });
   }
 };
 
 module.exports.resetPassword = async (req, res) => {
   try {
-    const { password, confirmPassword, token } = req.body;
+    const {
+      password,
+      confirmPassword,
+      token
+    } = req.body;
 
     const user = jwt.decode(token);
 
-    const candidate = await User.findOne({ email: user.email });
+    const candidate = await User.findOne({
+      email: user.email
+    });
 
     if (!candidate) {
-      return res.status(400).json({ message: "User does not exist" });
+      return res.status(400).json({
+        message: "User does not exist"
+      });
     }
 
     if (String(password) !== String(confirmPassword)) {
-      return res.status(400).json({ message: "Password mismatch" });
+      return res.status(400).json({
+        message: "Password mismatch"
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.updateOne({ email: user.email }, { password: hashedPassword });
-    return res.status(200).json({ message: "Password changed successfully" });
+    await User.updateOne({
+      email: user.email
+    }, {
+      password: hashedPassword
+    });
+    return res.status(200).json({
+      message: "Password changed successfully"
+    });
   } catch (e) {
-    return res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({
+      message: "Something went wrong"
+    });
   }
 };

@@ -6,7 +6,9 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 module.exports.generateAccessToken = (user) => {
-  return jwt.sign(user, process.env.JWT_SECRET_CODE, { expiresIn: "24h" });
+  return jwt.sign(user, process.env.JWT_SECRET_CODE, {
+    expiresIn: "24h"
+  });
 };
 
 module.exports.sendConfirmationEmail = async (userObj) => {
@@ -16,7 +18,9 @@ module.exports.sendConfirmationEmail = async (userObj) => {
       "utf8"
     );
 
-    const hash = jwt.sign(userObj, "secretKey", { expiresIn: "24h" });
+    const hash = jwt.sign(userObj, process.env.JWT_SECRET_CODE, {
+      expiresIn: "24h"
+    });
 
     const newMail = () => {
       const repOne = mail.replace(
@@ -41,7 +45,7 @@ module.exports.sendConfirmationEmail = async (userObj) => {
       html: newMail(),
     });
   } catch (err) {
-    res.status(500).json({ message: "Something went wrong" });
+    return err
   }
 };
 
@@ -52,7 +56,9 @@ module.exports.sendPasswordResetEmail = async (userObj) => {
       "utf8"
     );
 
-    const hash = jwt.sign(userObj, "secretKey", { expiresIn: "2h" });
+    const hash = jwt.sign(userObj, process.env.JWT_SECRET_CODE, {
+      expiresIn: "2h"
+    });
 
     const newMail = () => {
       const repOne = mail.replace(
@@ -81,6 +87,6 @@ module.exports.sendPasswordResetEmail = async (userObj) => {
       html: newMail(),
     });
   } catch (err) {
-    res.status(500).json({ message: "Something went wrong" });
+    return err
   }
 };

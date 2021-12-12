@@ -1,57 +1,37 @@
-const { Schema, model } = require("mongoose");
+const {
+    Schema,
+    model
+} = require("mongoose");
+
+const ticketSchema = new Schema({
+    ticketId: {
+        type: String,
+    },
+    title: {
+        type: String,
+    },
+    priority: {
+        type: String,
+    },
+});
 
 const schema = new Schema({
-  id: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["to do", "in progress", "review", "complete"],
-    required: true,
-  },
-  priority: {
-    type: String,
-  },
-  startDate: {
-    type: Date,
-  },
-  endDate: {
-    type: Date,
-  },
-  description: {
-    type: String,
-  },
-  createdBy: {
-    type: String,
-  },
-  creationDate: {
-    type: Date,
-    required: true,
-  },
-  members: {
-    type: Array,
-  },
-  comments: [
-    {
-      text: {
+    title: {
         type: String,
         required: true,
-      },
-      date: {
-        type: Date,
-        required: true,
-      },
-      commentedBy: {
-        type: String,
-        required: true,
-      },
     },
-  ],
+    columnId: {
+        type: String,
+        required: true,
+    },
+    owner: {
+        type: String,
+        required: true,
+    },
+    tickets: [ticketSchema],
+    color: {
+        type: String,
+    },
 });
 
 module.exports = model("tickets", schema);
